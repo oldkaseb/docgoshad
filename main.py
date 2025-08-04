@@ -8,13 +8,24 @@ from utils.state import get_reply
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
+# کامندهای اصلی
 dp.register_message_handler(start_handler, commands=["start"])
-dp.register_message_handler(stats_handler, lambda m: m.text.lower().startswith("آمار"))
-dp.register_message_handler(forall_handler, lambda m: m.text.lower().startswith("ارسال همگانی"))
-dp.register_message_handler(add_admin_handler, lambda m: m.text.lower().startswith("افزودن ادمین"))
-dp.register_message_handler(remove_admin_handler, lambda m: m.text.lower().startswith("حذف ادمین"))
-dp.register_message_handler(reply_handler, lambda msg: get_reply(msg.from_user.id) is not None, content_types=types.ContentTypes.TEXT)
+dp.register_message_handler(stats_handler, lambda msg: msg.text.lower().startswith("آمار"))
+dp.register_message_handler(forall_handler, lambda msg: msg.text.lower().startswith("پیام همگانی"))
+dp.register_message_handler(add_admin_handler, lambda msg: msg.text.startswith("افزودن ادمین"))
+dp.register_message_handler(remove_admin_handler, lambda msg: msg.text.startswith("حذف ادمین"))
+
+# فقط اگر ادمین در حالت پاسخ باشه، پیام ارسال کنه
+dp.register_message_handler(
+    reply_handler,
+    lambda msg: get_reply(msg.from_user.id) is not None,
+    content_types=types.ContentTypes.TEXT
+)
+
+# دریافت پیام کاربر فقط در چت خصوصی
 dp.register_message_handler(user_message_handler, lambda msg: msg.chat.type == "private")
+
+# هندل دکمه‌ها
 dp.register_callback_query_handler(admin_reply_callback, lambda c: c.data.startswith("reply"))
 dp.register_callback_query_handler(block_user_callback, lambda c: c.data.startswith("block"))
 
